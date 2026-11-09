@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${titulo})}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container pb-5" style="max-width: 720px;">
+
+    <h1 class="h3 mb-3" th:text="${titulo}">Nuevo item</h1>
+
+    <div class="card card-bc">
+        <div class="card-body p-4">
+
+            <form th:action="@{/items/guardar}" th:object="${item}" method="post" novalidate enctype="multipart/form-data">
+
+                <div class="alert alert-info small" role="alert">
+                    Revisa bien los datos y las fotos: una vez publicado, el item <strong>no se puede editar</strong>.
+                    Si te equivocas, tendrás que eliminarlo y publicarlo de nuevo.
+                </div>
+
+                <div class="mb-3">
+                    <label for="nombre" class="form-label">Nombre del item</label>
+                    <input type="text" id="nombre" class="form-control" th:field="*{nombre}"
+                           th:errorclass="is-invalid" maxlength="80">
+                    <div class="invalid-feedback" th:errors="*{nombre}">Error</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="descripcion" class="form-label">Descripción</label>
+                    <textarea id="descripcion" class="form-control" rows="3" th:field="*{descripcion}"
+                              th:errorclass="is-invalid" maxlength="255"></textarea>
+                    <div class="invalid-feedback" th:errors="*{descripcion}">Error</div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-sm-6">
+                        <label for="categoria" class="form-label">Categoría</label>
+                        <select id="categoria" class="form-select" th:field="*{categoria}" th:errorclass="is-invalid">
+                            <option value="">Selecciona...</option>
+                            <option th:each="c : ${categorias}" th:value="${c}" th:text="${c}">Categoría</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{categoria}">Error</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select id="estado" class="form-select" th:field="*{estado}" th:errorclass="is-invalid">
+                            <option value="">Selecciona...</option>
+                            <option th:each="e : ${estados}" th:value="${e}" th:text="${e}">Estado</option>
+                        </select>
+                        <div class="invalid-feedback" th:errors="*{estado}">Error</div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="fotos" class="form-label">
+                        Fotos del item <span class="text-muted">(puedes seleccionar varias)</span>
+                    </label>
+                    <input type="file" id="fotos" name="archivos" class="form-control"
+                           accept="image/*" multiple>
+                    <div class="form-text">
+                        Solo imágenes · máximo 5 MB por archivo · hasta 20 MB en total.
+                        La primera foto que subas quedará como principal y no podrás cambiarlas después.
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-bc">Guardar</button>
+                    <a class="btn btn-bc-outline" th:href="@{/items}">Cancelar</a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

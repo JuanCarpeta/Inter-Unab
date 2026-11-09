@@ -1,0 +1,103 @@
+/* Paleta Inter-Unab: azul universitario + naranja energía, sobre Bootstrap 5 */
+:root {
+  --iu-primary: #1e3a5f;      /* azul oscuro universitario */
+  --iu-primary-light: #2d5a8a; /* azul medio para hover */
+  --iu-accent: #e86c00;       /* naranja energía para acentos */
+  --iu-accent-hover: #cc5d00; /* naranja más oscuro para hover */
+  --iu-light: #f5f7fa;        /* gris muy claro para fondo */
+  --iu-white: #ffffff;
+  --bs-body-bg: var(--iu-light);
+  --bs-link-color: var(--iu-primary);
+  --bs-link-hover-color: var(--iu-primary-light);
+}
+
+body { background: var(--iu-light); padding-top: 1rem; }
+
+.navbar-bc { background: var(--iu-primary); }
+.navbar-bc .navbar-brand { color: var(--iu-white); font-weight: 600; letter-spacing: .3px; }
+
+/* Logo UNAB en el navbar: fondo blanco para que el naranja resalte sobre el azul */
+.navbar-logo {
+  height: 38px;
+  width: auto;
+  background: #fff;
+  padding: 3px 6px;
+  border-radius: 6px;
+}
+
+.btn-bc {
+  --bs-btn-color: var(--iu-white);
+  --bs-btn-bg: var(--iu-primary);
+  --bs-btn-border-color: var(--iu-primary);
+  --bs-btn-hover-color: var(--iu-white);
+  --bs-btn-hover-bg: var(--iu-primary-light);
+  --bs-btn-hover-border-color: var(--iu-primary-light);
+  --bs-btn-active-color: var(--iu-white);
+  --bs-btn-active-bg: var(--iu-primary);
+  --bs-btn-active-border-color: var(--iu-primary);
+  color: var(--iu-white) !important;
+  background-color: var(--iu-primary) !important;
+  border-color: var(--iu-primary) !important;
+}
+
+/* Botón secundario para acciones menos prominentes (editar, cancelar) */
+.btn-bc-outline {
+  --bs-btn-color: var(--iu-primary);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--iu-primary);
+  --bs-btn-hover-color: var(--iu-white);
+  --bs-btn-hover-bg: var(--iu-primary);
+  --bs-btn-hover-border-color: var(--iu-primary);
+  color: var(--iu-primary) !important;
+  background-color: transparent !important;
+  border-color: var(--iu-primary) !important;
+}
+
+.card-bc { border: 0; box-shadow: 0 2px 10px rgba(30, 58, 95, .12); border-radius: 14px; }
+.table thead th { background: var(--iu-primary); color: var(--iu-white); border: 0; }
+
+/* Badges por estado del item */
+.badge-estado-nuevo { background: #28a745; color: var(--iu-white); }
+.badge-estado-excelente { background: #17a2b8; color: var(--iu-white); }
+.badge-estado-bueno { background: #6c757d; color: var(--iu-white); }
+.badge-estado-regular { background: #ffc107; color: #212529; }
+.badge-categoria { background: var(--iu-primary-light); color: var(--iu-white); font-weight: 500; }
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--iu-primary);
+  box-shadow: 0 0 0 .2rem rgba(30, 58, 95, .25);
+}
+
+/* Fotos de items */
+.foto-mini {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+  flex-shrink: 0;
+}
+.foto-mini-vacia { background: #eef1f5; }
+
+.foto-thumb {
+  height: 130px;
+  width: 100%;
+  object-fit: cover;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+}
+
+/* Mini chat de los intercambios */
+.chat-body { background: #f8f9fb; max-height: 55vh; }
+.chat-msg { max-width: 85%; margin-bottom: .85rem; }
+.chat-mio { margin-left: auto; text-align: right; }
+.chat-autor { font-size: .72rem; color: #6c757d; margin-bottom: 2px; }
+.chat-burbuja {
+  background: #e9edf2;
+  border-radius: 12px;
+  padding: .5rem .75rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.chat-mio .chat-burbuja { background: var(--iu-primary); color: var(--iu-white); }
+.chat-fecha { font-size: .68rem; color: #adb5bd; margin-top: 2px; }

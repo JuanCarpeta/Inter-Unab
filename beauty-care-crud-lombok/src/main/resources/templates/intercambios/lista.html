@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inter-Unab - Intercambios')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container pb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0">Intercambios</h1>
+        <a class="btn btn-bc-outline" th:href="@{/items}">Ver items</a>
+    </div>
+
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${mensaje}">Listo</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}">Error</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
+    <div class="card card-bc">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Ofrece</th>
+                    <th>Pide a cambio</th>
+                    <th>Mensaje</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="x : ${intercambios}">
+                    <td>
+                        <div class="fw-semibold" th:text="${x.nombreOfrecido}">Item ofrecido</div>
+                        <div class="small text-muted"
+                             th:text="${x.duenoOfrecido != null ? x.duenoOfrecido : 'sin dueño'}">dueño</div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold" th:text="${x.nombreSolicitado}">Item solicitado</div>
+                        <div class="small text-muted"
+                             th:text="${x.duenoSolicitado != null ? x.duenoSolicitado : 'sin dueño'}">dueño</div>
+                    </td>
+                    <td class="small text-muted" th:text="${x.mensaje}">—</td>
+                    <td>
+                        <span class="badge"
+                              th:classappend="${x.estado.name() == 'PENDIENTE'} ? 'text-bg-warning' :
+                                              (${x.estado.name() == 'ACEPTADO'} ? 'text-bg-info' :
+                                              (${x.estado.name() == 'COMPLETADO'} ? 'text-bg-success' :
+                                              (${x.estado.name() == 'RECHAZADO'} ? 'text-bg-danger' : 'text-bg-secondary')))"
+                              th:text="${x.estado}">Estado</span>
+                    </td>
+                    <td class="small text-muted"
+                        th:text="${#temporals.format(x.fechaPropuesta, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                    <td class="text-end text-nowrap"
+                        th:with="puedoResponder=${usuarioActual != null and (x.duenoSolicitado == null or #strings.isEmpty(x.duenoSolicitado) or x.duenoSolicitado.equalsIgnoreCase(usuarioActual.email))},
+                                 esParte=${usuarioActual != null and ((x.duenoOfrecido != null and x.duenoOfrecido.equalsIgnoreCase(usuarioActual.email)) or (x.duenoSolicitado != null and x.duenoSolicitado.equalsIgnoreCase(usuarioActual.email)))}">
+                        <button type="button" class="btn btn-sm btn-bc-outline" th:if="${esParte}"
+                                data-bs-toggle="modal" th:attr="data-bs-target='#chat-' + ${x.id}">
+                            Chat
+                            <span class="badge text-bg-light ms-1" th:if="${!#lists.isEmpty(mensajes[x.id])}"
+                                  th:text="${#lists.size(mensajes[x.id])}">0</span>
+                        </button>
+                        <form th:if="${x.estado.name() == 'PENDIENTE' and puedoResponder}" class="d-inline" method="post"
+                              th:action="@{/intercambios/{id}/aceptar(id=${x.id})}">
+                            <button type="submit" class="btn btn-sm btn-success">Aceptar</button>
+                        </form>
+                        <form th:if="${x.estado.name() == 'PENDIENTE' and puedoResponder}" class="d-inline" method="post"
+                              th:action="@{/intercambios/{id}/rechazar(id=${x.id})}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Rechazar</button>
+                        </form>
+                        <form th:if="${x.estado.name() == 'ACEPTADO' and esParte}" class="d-inline" method="post"
+                              th:action="@{/intercambios/{id}/completar(id=${x.id})}">
+                            <button type="submit" class="btn btn-sm btn-bc">Completar</button>
+                        </form>
+                        <form th:if="${(x.estado.name() == 'PENDIENTE' or x.estado.name() == 'ACEPTADO') and esParte}"
+                              class="d-inline" method="post"
+                              th:action="@{/intercambios/{id}/cancelar(id=${x.id})}"
+                              onsubmit="return confirm('¿Cancelar este intercambio?');">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary">Cancelar</button>
+                        </form>
+                        <span class="small text-muted" th:if="${usuarioActual == null}">
+                            <a th:href="@{/login}">Inicia sesión</a> para responder
+                        </span>
+                        <span class="small text-muted"
+                              th:if="${usuarioActual != null and x.estado.name() == 'PENDIENTE' and !puedoResponder}">
+                            Esperando respuesta del dueño
+                        </span>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(intercambios)}">
+                    <td colspan="6" class="text-center text-muted py-4">
+                        Todavía no hay propuestas. Entra a un item y usa el botón <strong>Intercambiar</strong>.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modales de chat (uno por propuesta) -->
+    <div th:each="x : ${intercambios}" th:id="|chat-${x.id}|" class="modal fade" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div>
+                        <h5 class="modal-title h6 mb-0">
+                            <span th:text="${x.nombreOfrecido}">Ofrecido</span>
+                            <span class="text-muted">↔</span>
+                            <span th:text="${x.nombreSolicitado}">Solicitado</span>
+                        </h5>
+                        <div class="small text-muted">
+                            <span th:text="${x.duenoOfrecido}">a@unab.edu.co</span>
+                            ·
+                            <span th:text="${x.duenoSolicitado}">b@unab.edu.co</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body chat-body">
+                    <!-- propuesta inicial -->
+                    <div class="chat-msg" th:if="${x.mensaje != null and !#strings.isEmpty(x.mensaje)}">
+                        <div class="chat-autor" th:text="${x.duenoOfrecido}">autor</div>
+                        <div class="chat-burbuja" th:text="${x.mensaje}">mensaje</div>
+                        <div class="chat-fecha"
+                             th:text="${#temporals.format(x.fechaPropuesta, 'dd/MM HH:mm')}">fecha</div>
+                    </div>
+
+                    <div th:each="m : ${mensajes[x.id]}" class="chat-msg"
+                         th:classappend="${m.autor.equalsIgnoreCase(usuarioActual.email)} ? 'chat-mio' : ''">
+                        <div class="chat-autor" th:text="${m.autor}">autor</div>
+                        <div class="chat-burbuja" th:text="${m.texto}">mensaje</div>
+                        <div class="chat-fecha" th:text="${#temporals.format(m.fecha, 'dd/MM HH:mm')}">fecha</div>
+                    </div>
+
+                    <p class="text-muted small mb-0"
+                       th:if="${#lists.isEmpty(mensajes[x.id]) and (x.mensaje == null or #strings.isEmpty(x.mensaje))}">
+                        Todavía no hay mensajes.
+                    </p>
+                </div>
+
+                <div class="modal-footer d-block"
+                     th:if="${x.estado.name() == 'PENDIENTE' or x.estado.name() == 'ACEPTADO'}">
+                    <form method="post" th:action="@{/intercambios/{id}/mensajes(id=${x.id})}" class="d-flex gap-2">
+                        <input type="text" name="texto" class="form-control" maxlength="500"
+                               placeholder="Escribe una respuesta..." autocomplete="off" required>
+                        <button type="submit" class="btn btn-bc">Enviar</button>
+                    </form>
+                </div>
+                <div class="modal-footer"
+                     th:unless="${x.estado.name() == 'PENDIENTE' or x.estado.name() == 'ACEPTADO'}">
+                    <span class="small text-muted">Intercambio cerrado: el chat es de solo lectura.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3">
+        Al aceptar una propuesta, ambos items quedan comprometidos y las demás propuestas que los usaban se rechazan.
+        No hay dinero involucrado: es un trueque directo entre estudiantes.
+    </p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Reabre el chat correspondiente cuando se vuelve de enviar un mensaje (?chat=ID)
+    (function () {
+        const id = new URLSearchParams(window.location.search).get('chat');
+        if (!id) return;
+        const el = document.getElementById('chat-' + id);
+        if (!el) return;
+        bootstrap.Modal.getOrCreateInstance(el).show();
+        history.replaceState(null, '', window.location.pathname);
+    })();
+</script>
+</body>
+</html>

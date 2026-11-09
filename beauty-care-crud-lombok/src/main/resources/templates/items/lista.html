@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Inter-Unab - Items')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container pb-5">
+
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+        <h1 class="h3 mb-0">Items para intercambio</h1>
+        <a class="btn btn-bc" th:href="@{/items/nuevo}">+ Nuevo item</a>
+    </div>
+
+    <!-- Mensajes que llegan despues de crear, editar o borrar -->
+    <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${mensaje}">Listo</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}">Error</span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+
+    <div class="card card-bc">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Categoría</th>
+                    <th>Estado</th>
+                    <th class="text-end">Acciones</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${items}">
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img th:if="${item.fotos != null and not #lists.isEmpty(item.fotos)}"
+                                 th:src="@{|/uploads/${item.fotos[0].rutaArchivo}|}"
+                                 class="foto-mini" alt="Foto del item">
+                            <div th:if="${item.fotos == null or #lists.isEmpty(item.fotos)}"
+                                 class="foto-mini foto-mini-vacia d-flex align-items-center justify-content-center"
+                                 title="Sin fotos">
+                                <span class="small text-muted">N/A</span>
+                            </div>
+                            <div>
+                                <div class="fw-semibold" th:text="${item.nombre}">Nombre</div>
+                                <div class="small text-muted" th:text="${item.descripcion}">Descripción</div>
+                                <div class="small text-muted" th:if="${item.fotos != null and #lists.size(item.fotos) > 1}"
+                                     th:text="${#lists.size(item.fotos)} + ' fotos'">2 fotos</div>
+                                <div class="small text-muted"
+                                     th:text="${item.publicadoPor != null ? 'Publicado por ' + item.publicadoPor : 'Sin dueño registrado'}">
+                                    Publicado por
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="badge badge-categoria" th:text="${item.categoria}">Categoría</span></td>
+                    <td>
+                        <span class="badge" 
+                              th:classappend="${item.estado == null} ? 'badge-estado-regular' : (${item.estado.name() == 'NUEVO'} ? 'badge-estado-nuevo' : (${item.estado.name() == 'USADO_EXCELENTE'} ? 'badge-estado-excelente' : (${item.estado.name() == 'USADO_BUENO'} ? 'badge-estado-bueno' : 'badge-estado-regular')))"
+                              th:text="${item.estado != null ? item.estado : 'Sin estado'}">Estado</span>
+                    </td>
+                    <td class="text-end text-nowrap"
+                        th:with="esMio=${usuarioActual != null and item.publicadoPor != null and item.publicadoPor.equalsIgnoreCase(usuarioActual.email)}">
+                        <th:block th:if="${esMio}">
+                            <span class="badge text-bg-secondary me-1" th:unless="${item.disponible}"
+                                  title="Este item ya forma parte de un intercambio">Intercambiado</span>
+                            <form class="d-inline" method="post"
+                                  th:action="@{/items/{id}/eliminar(id=${item.id})}"
+                                  onsubmit="return confirm('¿Eliminar este item? Esta acción no se puede deshacer.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                            </form>
+                        </th:block>
+                        <th:block th:unless="${esMio}">
+                            <a class="btn btn-sm btn-bc" th:if="${item.disponible}"
+                               th:href="@{/items/{id}/intercambiar(id=${item.id})}">Intercambiar</a>
+                            <span class="badge text-bg-secondary" th:unless="${item.disponible}"
+                                  title="Este item ya forma parte de un intercambio">Intercambiado</span>
+                            <form class="d-inline" th:if="${item.publicadoPor == null}" method="post"
+                                  th:action="@{/items/{id}/reclamar(id=${item.id})}"
+                                  onsubmit="return confirm('¿Este item es tuyo? Quedará a tu nombre.');">
+                                <button type="submit" class="btn btn-sm btn-bc-outline"
+                                        title="Item antiguo sin dueño: puedes reclamarlo">Reclamar</button>
+                            </form>
+                        </th:block>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(items)}">
+                    <td colspan="4" class="text-center text-muted py-4">
+                        Aún no hay items para intercambio. Crea el primero con "Nuevo item".
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <p class="small text-muted mt-3">Estados: <span class="badge badge-estado-nuevo">Nuevo</span> · <span class="badge badge-estado-excelente">Usado excelente</span> · <span class="badge badge-estado-bueno">Usado bueno</span> · <span class="badge badge-estado-regular">Usado regular</span></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
